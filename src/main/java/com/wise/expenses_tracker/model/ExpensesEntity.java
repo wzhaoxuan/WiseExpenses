@@ -1,8 +1,6 @@
 package com.wise.expenses_tracker.model;
 import java.time.Instant;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,12 +23,8 @@ public class ExpensesEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
-
-    @CreationTimestamp
-    private Instant date; // Using Instant for date to capture both date and time
-
+    private Instant date;
     private String pay_by;
     private Double amount;
     private String description;

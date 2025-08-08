@@ -64,6 +64,12 @@
             <version>2.6.0</version>
         </dependency>
 
+		<!-- Validation -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
 		<!-- Spring Boot AutoConfiguration -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

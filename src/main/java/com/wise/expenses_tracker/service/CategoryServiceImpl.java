@@ -29,6 +29,29 @@ public class CategoryServiceImpl implements CategoryService{
         categoryRepository.save(categoryName);
         return new CategoryDTO(categoryName.getId(), categoryName.getName());
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryDTO> getAllCategoriesEntity(){
+        Collection<CategoryEntity> categories = categoryRepository.findAll();
+        List<CategoryDTO> categoryDTOs = categories.stream().map(category -> new CategoryDTO(category.getId(), category.getName()))
+                .collect(Collectors.toList());
+        return categoryDTOs;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CategoryDTO> getCategoryById(Long id){
+        return categoryRepository.findById(id)
+                .map(category -> new CategoryDTO(category.getId(), category.getName()));
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<CategoryEntity> getCategoryByName(String name) {
+        return categoryRepository.findByName(name);
+    }
 
     @Override
     @Transactional
@@ -47,21 +70,5 @@ public class CategoryServiceImpl implements CategoryService{
             categoryRepository.delete(existingCategory);
             return new CategoryDTO(existingCategory.getId(), existingCategory.getName());
         });
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryDTO> getAllCategoriesEntity(){
-        Collection<CategoryEntity> categories = categoryRepository.findAll();
-        List<CategoryDTO> categoryDTOs = categories.stream().map(category -> new CategoryDTO(category.getId(), category.getName()))
-                .collect(Collectors.toList());
-        return categoryDTOs;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<CategoryDTO> getCategoryById(Long id){
-        return categoryRepository.findById(id)
-                .map(category -> new CategoryDTO(category.getId(), category.getName()));
     }
 }

@@ -1,19 +1,16 @@
 package com.wise.expenses_tracker.controller;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.net.URI;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wise.expenses_tracker.service.interfaces.CategoryService;
@@ -22,6 +19,7 @@ import com.wise.expenses_tracker.transferObject.CategoryDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -51,8 +49,8 @@ public class CategoryController {
     @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> getCategoryById(@PathVariable Long id){
         return categoryService.getCategoryById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .map(category -> ResponseEntity.status(200).body(category))
+                .orElseGet(() -> ResponseEntity.status(404).build());
     }
 
     @Operation(summary = "Create a new category", description = "Add a new category to the system")
@@ -68,6 +66,12 @@ public class CategoryController {
                 .body(saveCategory);
     }
 
+    @Operation(summary = "Update an existing category", description = "Modify an existing category by its unique identifier")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Category updated successfully"),
+        @ApiResponse(responseCode = "404", description = "Category not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid category data provided")
+    })
     @PutMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO categoryDTO) {
         return categoryService.updateCategory(id, categoryDTO)
@@ -75,6 +79,11 @@ public class CategoryController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Delete a category", description = "Remove a category by its unique identifier")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Category deleted successfully"),
+        @ApiResponse(responseCode = "404", description = "Category not found")
+    })
     @DeleteMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long id) {
         return categoryService.deleteCategory(id)

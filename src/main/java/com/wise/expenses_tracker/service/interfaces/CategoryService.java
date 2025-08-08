@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.wise.expenses_tracker.transferObject.CategoryDTO;
+import com.wise.expenses_tracker.model.CategoryEntity;
 
 public interface CategoryService {
 
@@ -11,5 +12,6 @@ public interface CategoryService {
     Optional<CategoryDTO> deleteCategory(Long id);
     List<CategoryDTO> getAllCategoriesEntity();
     Optional<CategoryDTO> getCategoryById(Long id);
+    Optional<CategoryEntity> getCategoryByName(String name);
 
 }

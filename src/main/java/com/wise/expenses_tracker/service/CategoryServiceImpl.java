@@ -11,30 +11,32 @@ import com.wise.expenses_tracker.model.CategoryEntity;
 import com.wise.expenses_tracker.repository.CategoryRepository;
 import com.wise.expenses_tracker.service.interfaces.CategoryService;
 import com.wise.expenses_tracker.transferObject.CategoryDTO;
-;
+import lombok.RequiredArgsConstructor;
+
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepository;
-
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     @Override
     @Transactional
     public CategoryDTO saveCategory(CategoryDTO category) {
-        CategoryEntity categoryName = new CategoryEntity();
-        categoryName.setName(category.getName());
-        categoryRepository.save(categoryName);
-        return new CategoryDTO(categoryName.getId(), categoryName.getName());
+        return handleCategoryAssignment(category);
     }
-    
+
+    @Override
+    @Transactional
+    public CategoryDTO createNewCategory(CategoryDTO category) {
+        return handleCategoryAssignment(category);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDTO> getAllCategoriesEntity(){
         Collection<CategoryEntity> categories = categoryRepository.findAll();
-        List<CategoryDTO> categoryDTOs = categories.stream().map(category -> new CategoryDTO(category.getId(), category.getName()))
+        List<CategoryDTO> categoryDTOs = categories.stream()
+                .map(this::convertToCategoryDTO)
                 .collect(Collectors.toList());
         return categoryDTOs;
     }
@@ -43,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService{
     @Transactional(readOnly = true)
     public Optional<CategoryDTO> getCategoryById(Long id){
         return categoryRepository.findById(id)
-                .map(category -> new CategoryDTO(category.getId(), category.getName()));
+                .map(this::convertToCategoryDTO);
     }
 
 
@@ -59,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService{
         return categoryRepository.findById(id).map(existingCategory -> {
             existingCategory.setName(category.getName());
             categoryRepository.save(existingCategory);
-            return new CategoryDTO(existingCategory.getId(), existingCategory.getName());
+            return convertToCategoryDTO(existingCategory);
         });
     }
 
@@ -68,7 +70,20 @@ public class CategoryServiceImpl implements CategoryService{
     public Optional<CategoryDTO> deleteCategory(Long id) {
         return categoryRepository.findById(id).map(existingCategory -> {
             categoryRepository.delete(existingCategory);
-            return new CategoryDTO(existingCategory.getId(), existingCategory.getName());
+            return convertToCategoryDTO(existingCategory);
         });
+    }
+
+
+    private CategoryDTO handleCategoryAssignment(CategoryDTO categoryDTO) {
+        CategoryEntity categoryName = new CategoryEntity();
+        categoryName.setName(categoryDTO.getName());
+        categoryRepository.save(categoryName);
+        return new CategoryDTO(categoryName.getId(), categoryName.getName());
+    }
+
+    private CategoryDTO convertToCategoryDTO(CategoryEntity category) {
+            if (category == null) return null;
+            return new CategoryDTO(category.getId(), category.getName());
     }
 }

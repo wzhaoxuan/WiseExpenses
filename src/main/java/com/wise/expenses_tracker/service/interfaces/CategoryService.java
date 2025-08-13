@@ -8,6 +8,7 @@ import com.wise.expenses_tracker.model.CategoryEntity;
 public interface CategoryService {
 
     CategoryDTO saveCategory(CategoryDTO category);
+    CategoryDTO createNewCategory(CategoryDTO category);
     Optional<CategoryDTO> updateCategory(Long id, CategoryDTO category);
     Optional<CategoryDTO> deleteCategory(Long id);
     List<CategoryDTO> getAllCategoriesEntity();

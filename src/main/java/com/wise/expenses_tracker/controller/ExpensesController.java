@@ -2,6 +2,7 @@ package com.wise.expenses_tracker.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,15 +21,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ExpensesController {
     private final ExpensesService expensesService;
-
-    public ExpensesController(ExpensesService expensesService) {
-        this.expensesService = expensesService;
-    }
 
     @GetMapping("/expenses")
     @Operation(summary = "Get all expenses", description = "Retrieve a list of all expenses")
@@ -50,6 +49,24 @@ public class ExpensesController {
         return expensesService.getExpenseById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/expenses/category")
+    @Operation(
+        summary = "Get expense totals by category", 
+        description = "Retrieve the total amount spent in each category for the current user"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Category totals retrieved successfully"),
+        @ApiResponse(responseCode = "200", description = "Empty result - user has no expenses yet"),
+        @ApiResponse(responseCode = "401", description = "User not authenticated")
+    })
+    public ResponseEntity<Map<String, Double>> getExpensesByCategory() {
+        Map<String, Double> categoryExpenses = expensesService.getCategoryExpenses();
+        
+        // Return 200 with empty map instead of 404
+        // Empty expenses is a valid state, not an error
+        return ResponseEntity.ok(categoryExpenses);
     }
 
     @PostMapping("/expenses")
@@ -86,7 +103,7 @@ public class ExpensesController {
     }) 
     public ResponseEntity<ExpensesDTO> deleteExpense(@PathVariable Long id) {
         return expensesService.deleteExpense(id)
-                .map(expense -> ResponseEntity.ok(expense))
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
